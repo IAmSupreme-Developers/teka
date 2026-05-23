@@ -16,6 +16,8 @@
 # next.js
 /.next/
 /out/
+/.kiro/
+/uploads/
 
 # production
 /build
