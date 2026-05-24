@@ -1,6 +1,7 @@
 // how many clients can be hammering the server with base64 chunk requests simultaneously
 // bump this up if your server has RAM to spare, lower it if it starts sweating
 export const BASE64_DOWNLOAD_LIMIT = 3
+export const DELETE_CHUNKS_AFTER = 1 * 60 * 60 * 1000;
 
 // attach to global so it survives Next.js hot reloads without resetting to 0
 const g = global as typeof global & { _activeBase64Downloads?: number }

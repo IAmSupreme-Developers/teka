@@ -161,17 +161,22 @@ export default function VideoPage() {
           let offset = 0
           for (const a of arrays) { merged.set(a, offset); offset += a.length }
           await fsWrite(filename, new Blob([merged], { type: data.type }))
-          next.user.downloads[pIdx].videos.push({ ...vid, location: filename })
+          const savedVid = { ...vid, location: filename }
+          next.user.downloads[pIdx].videos.push(savedVid)
           next.user.downloads[pIdx].downloadedAt = new Date().toISOString()
           next.user.downloads[pIdx].complete =
             next.user.downloads[pIdx].videos.length === (cPlaylist.totalEpisodes ?? videos.length)
           next.runtime.downloading = undefined
           bus.dispatch("download:done")
+          // update local videos array so playback uses the downloaded file immediately
+          setVideos(vs => vs.map(v => v.id === vid.id ? savedVid : v))
           save(next)
         } else await pump()
       }
       await pump()
     } else {
+
+      // NEEDFIX - this will not work if the url is provided for chunk download (not an http link)
       const { Filesystem, Directory } = await import('@capacitor/filesystem')
       await new Promise<void>((resolve, reject) => {
         Filesystem.addListener('progress', (p: { url: string; bytes: number; contentLength: number }) => {
@@ -188,12 +193,14 @@ export default function VideoPage() {
           directory: Directory.Data,
           progress: true,
         }).then(() => {
-          next.user.downloads[pIdx].videos.push({ ...vid, location: filename })
+          const savedVid = { ...vid, location: filename }
+          next.user.downloads[pIdx].videos.push(savedVid)
           next.user.downloads[pIdx].downloadedAt = new Date().toISOString()
           next.user.downloads[pIdx].complete =
             next.user.downloads[pIdx].videos.length === (cPlaylist.totalEpisodes ?? videos.length)
           next.runtime.downloading = undefined
           bus.dispatch("download:done")
+          setVideos(vs => vs.map(v => v.id === vid.id ? savedVid : v))
           save(next)
           resolve()
         }).catch(reject)

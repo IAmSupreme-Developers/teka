@@ -18,12 +18,20 @@ function resolvePath(file: string): string | null {
 // yes, this lives in RAM. yes, a 1GB video will eat 1.33GB of RAM (base64 overhead).
 // it's fast though. embarrassingly fast on local network.
 const cache: Record<string, string[]> = {}
+const clearTimer: Record<string, {last: number, timer: unknown}> = {}
 
 // split a string into fixed-size chunks — used to slice the base64 string
 function chunkSubstr(str: string, size: number): string[] {
   const chunks: string[] = []
   for (let i = 0; i < str.length; i += size) chunks.push(str.substr(i, size))
   return chunks
+}
+
+function extendCacheClear(vid: string) {
+  const i = clearTimer[vid];
+  if(!i){
+
+  }
 }
 
 // loads the full file into RAM as base64 chunks on first request, serves from cache after
@@ -36,14 +44,15 @@ async function getChunks(vid: string): Promise<string[]> {
     // fetch the whole external file — this blocks until complete on first request
     const res = await fetch(vid)
     if (!res.ok) throw new Error(`Failed to fetch ${vid}: ${res.status}`)
-    b64 = Buffer.from(await res.arrayBuffer()).toString('base64')
+      b64 = Buffer.from(await res.arrayBuffer()).toString('base64')
   } else {
     const filePath = resolvePath(vid)
     if (!filePath) throw new Error('File not found')
-    b64 = fs.readFileSync(filePath).toString('base64') // sync read — intentional, we want it all at once
+      b64 = fs.readFileSync(filePath).toString('base64') // sync read — intentional, we want it all at once
   }
-
+  
   // ~512KB chunks — small enough for fast HTTP responses, large enough to not spam 10k requests
+  console.log('created chunk')
   cache[vid] = chunkSubstr(b64, Math.floor(0.5 * 1024 * 1024))
   return cache[vid]
 }

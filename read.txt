@@ -35,3 +35,32 @@
   VALUES ('Death Note E1',
   '{"720p":"https://cdn.example.com/dn1.720p.mp4","360p":"https://cdn.example.com/dn1.360p.mp4"}
   ', 'external', 'animes', 3, 0);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ fully documented meaning talking about expected data and errors too... whys and hows, coulds and why they should be considered... etc
